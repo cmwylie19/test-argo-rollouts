@@ -10,3 +10,5 @@ docker build -t docker.io/cmwylie19/test-argo-rollouts:v2 .; docker push docker.
 
 
 k argo rollouts get rollout app-rollout --watch      
+
+k get ro app -oyaml  
