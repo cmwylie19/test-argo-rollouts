@@ -1,0 +1,50 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: app
+  labels:
+    app: app
+spec:
+  strategy:
+    canary:
+      steps:
+      - setWeight: 20
+      - pause:
+          duration: "1m"
+      - setWeight: 50
+      - pause:
+          duration: "2m"
+      canaryService: app-canary
+      stableService: app
+      trafficRouting:
+        istio:
+          virtualService: 
+            name: app
+            routes:
+            - primary 
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: app
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: app
+        version: v1
+    spec:
+      containers:
+      - name: app
+        image: docker.io/cmwylie19/test-argo-rollouts:v1
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8080
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "140m"
