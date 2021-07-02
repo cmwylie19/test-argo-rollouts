@@ -34,10 +34,26 @@ spec:
         app: app
         version: v1
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+      serviceAccountName: app
       containers:
       - name: app
         image: docker.io/cmwylie19/test-argo-rollouts:v1
         imagePullPolicy: Always
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: http
+          initialDelaySeconds: 3
+          periodSeconds: 3
         ports:
         - name: http
           containerPort: 8080
@@ -48,3 +64,8 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "140m"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: app

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 )
 
 type Arr struct {
@@ -32,6 +33,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Sorted-v2 %v", sortd_arr)
 }
 func main() {
+	started := time.Now()
+	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		duration := time.Now().Sub(started)
+		w.WriteHeader(200)
+		w.Write([]byte(fmt.Sprintf("ok: %.3v", duration.Seconds())))
+	})
 	http.HandleFunc("/", handler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
