@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: app
+    service: httpbin
+  name: app
+  namespace: default
+spec:
+  ports:
+    - port: 8080
+      name: http
+      targetPort: 8080
+  selector:
+    app: app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: app
+  name: app
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: app
+      version: v1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: app
+        version: v1
+    spec:
+      serviceAccountName: app
+      containers:
+        - image: docker.io/cmwylie19/test-argo-rollouts:v1
+          name: app
+          ports:
+            - containerPort: 8080
+              name: http
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: app
